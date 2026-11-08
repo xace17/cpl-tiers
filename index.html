@@ -48,6 +48,10 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 .mrow span:first-child{display:flex;align-items:center;gap:8px}
 .mrow span:last-child{color:var(--mut);font-size:12px}
 .close{margin:0 18px 18px;width:calc(100% - 36px);background:var(--card2);border:1px solid var(--line);color:var(--text);padding:11px;border-radius:10px;font-size:14px;cursor:pointer}
+.tiersec{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.tierhead{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:15px;padding:8px 12px;border-radius:10px;background:var(--card2);border:1px solid var(--line)}
+.tierhead span{font-size:12px;color:var(--mut);font-weight:700}
+.tempty{color:var(--mut);font-size:13px;padding:2px 12px 6px}
 footer{text-align:center;color:var(--mut);font-size:12px;padding:20px 16px 30px}
 </style>
 </head>
@@ -140,7 +144,7 @@ function render(){
   var r = rows();
   var list = document.getElementById("list");
   if (!r.length) { list.innerHTML = '<div class="empty">No players here yet.</div>'; return; }
-  list.innerHTML = r.map(function(x, i){
+  function rowHtml(x, i){
     var badges;
     if (state.mode === "Overall") {
       badges = Object.keys(x.p.modes).slice(0, 4).map(function(m){
@@ -151,12 +155,23 @@ function render(){
       badges = '<span class="badge ' + tierClass(x.tier) + '">' + esc(x.tier) + '</span>';
     }
     return '<div class="row" data-n="' + esc(x.name) + '">' +
-      '<div class="pos">' + (i + 1) + '</div>' +
+      (state.mode === "Overall" ? '<div class="pos">' + (i + 1) + '</div>' : '') +
       '<img class="head" loading="lazy" alt="" src="' + head(x.name) + '">' +
       '<div class="who"><div class="name">' + esc(x.name) + '</div><div class="sub">' + esc(x.p.region || "") + '</div></div>' +
       '<div class="badges">' + badges + '</div>' +
-      '<div class="pts">' + x.pts + '</div></div>';
-  }).join("");
+      (state.mode === "Overall" ? '<div class="pts">' + x.pts + '</div>' : '') + '</div>';
+  }
+  if (state.mode === "Overall") {
+    list.innerHTML = r.map(rowHtml).join("");
+  } else {
+    var html = "";
+    for (var n = 1; n <= 5; n++) {
+      var grp = r.filter(function(x){ return String(x.tier).charAt(2) === String(n); });
+      html += '<div class="tiersec"><div class="tierhead t' + n + '">Tier ' + n + '<span>' + grp.length + '</span></div>' +
+        (grp.length ? grp.map(rowHtml).join("") : '<div class="tempty">No players</div>') + '</div>';
+    }
+    list.innerHTML = html;
+  }
 }
 
 function openProfile(name){
