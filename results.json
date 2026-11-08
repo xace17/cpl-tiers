@@ -17,6 +17,15 @@
      "date": "2026-11-08"
     }
    }
+  },
+  "BestToBe": {
+   "region": "Asia",
+   "modes": {
+    "Vanilla": {
+     "tier": "LT3",
+     "date": "2026-11-08"
+    }
+   }
   }
  }
 }
