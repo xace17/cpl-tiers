@@ -26,6 +26,15 @@
      "date": "2026-11-08"
     }
    }
+  },
+  "ItzRealLiftedcon": {
+   "region": "Asia",
+   "modes": {
+    "Sword": {
+     "tier": "LT5",
+     "date": "2026-11-08"
+    }
+   }
   }
  }
 }
