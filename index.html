@@ -1,1 +1,213 @@
-# cpl-tiers
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CPL Tiers · Combat Premier League</title>
+<meta name="description" content="Combat Premier League tier rankings: overall leaderboard, every gamemode and player profiles.">
+<style>
+:root{--bg:#0b0e14;--card:#111721;--card2:#182030;--line:#222c3d;--text:#f3f5f9;--mut:#7d889c;--acc:#ff4500;--acc2:#ff7a45}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+header{padding:18px 16px 10px;display:flex;align-items:center;gap:12px;max-width:900px;margin:0 auto}
+.logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#a3210a);display:grid;place-items:center;font-weight:800;letter-spacing:.5px}
+header h1{font-size:19px;line-height:1.1}
+header small{color:var(--mut);font-size:12px}
+main{max-width:900px;margin:0 auto;padding:0 16px 40px}
+.banner{background:#2a1a12;border:1px solid #5a2c18;color:#ffb48f;border-radius:10px;padding:10px 12px;font-size:13px;margin:8px 0}
+.tabs{display:flex;gap:10px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;min-width:92px;display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:18px 18px 12px 12px;color:var(--mut);padding:12px 12px 10px;font-size:14px;font-weight:700;cursor:pointer}
+.tab svg{display:block;opacity:.75}
+.tab.on{color:var(--text);border-color:#5b6b88;background:var(--card2);box-shadow:inset 0 -3px 0 var(--acc)}
+.tab.on svg{opacity:1}
+.tools{display:flex;gap:8px;margin:2px 0 12px}
+.tools input,.tools select{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font-size:14px;outline:none}
+.tools input{flex:1;min-width:0}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+.row:hover{border-color:#44505f}
+.pos{width:34px;text-align:center;font-weight:800;font-size:18px;color:var(--mut)}
+.row:nth-child(1) .pos{color:#ffd24a}.row:nth-child(2) .pos{color:#cfd4dc}.row:nth-child(3) .pos{color:#e0905a}
+.head{width:44px;height:44px;border-radius:8px;image-rendering:pixelated;background:var(--card2)}
+.who{flex:1;min-width:0}
+.name{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{color:var(--mut);font-size:12px;margin-top:2px}
+.badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:48%}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--card2);border:1px solid var(--line);white-space:nowrap}
+.t1{color:#ff5a5a;border-color:#5a2a2a}.t2{color:#ffa94d;border-color:#5a3d1c}.t3{color:#ffd24a;border-color:#5a4c1c}.t4{color:#7ddf8a;border-color:#1f4d2a}.t5{color:#7ab8ff;border-color:#1f3a5a}
+.pts{font-weight:800;color:var(--acc2);min-width:52px;text-align:right}
+.empty{color:var(--mut);text-align:center;padding:40px 10px}
+dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:0;width:min(440px,92vw);margin:auto}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+.mhead{display:flex;align-items:center;gap:14px;padding:18px;border-bottom:1px solid var(--line)}
+.mhead img{width:64px;height:64px;border-radius:10px;image-rendering:pixelated}
+.mhead h2{font-size:20px}
+.mbody{padding:14px 18px 18px;display:flex;flex-direction:column;gap:8px}
+.mrow{display:flex;justify-content:flex-start;align-items:center;background:var(--card2);border-radius:10px;padding:10px 12px;font-size:14px}
+.mrow span:first-child{display:flex;align-items:center;gap:8px}
+.mrow span:last-child{color:var(--mut);font-size:12px}
+.close{margin:0 18px 18px;width:calc(100% - 36px);background:var(--card2);border:1px solid var(--line);color:var(--text);padding:11px;border-radius:10px;font-size:14px;cursor:pointer}
+footer{text-align:center;color:var(--mut);font-size:12px;padding:20px 16px 30px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">CPL</div>
+  <div><h1>CPL Tiers</h1><small>Combat Premier League</small></div>
+</header>
+<main>
+  <div id="banner"></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="tools">
+    <input id="search" type="search" placeholder="Search player...">
+    <select id="region"><option>All</option><option>Asia</option><option>Europe</option></select>
+  </div>
+  <div class="list" id="list"></div>
+</main>
+<dialog id="modal"></dialog>
+<footer>CPL Tiers · Rankings update automatically · Not affiliated with Mojang or Microsoft</footer>
+
+<script>
+// Results file next to this page. The bot updates it after every /result.
+var DATA_URL = "results.json";
+
+var MODES = ["UHC","Pot","Mace","NethPot","SMP","Sword","Axe","Vanilla","Cart PvP","DiaSmp","Spear Mace"];
+var POINTS = {HT1:60,LT1:45,HT2:30,LT2:20,HT3:10,LT3:6,HT4:4,LT4:3,HT5:2,LT5:1};
+
+// Simple original icons drawn as SVG (24x24).
+var ICONS = {
+  "Overall": '<path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="#ffd24a"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3" fill="none" stroke="#ffd24a" stroke-width="1.6"/><rect x="10.5" y="14" width="3" height="4" fill="#e0a82e"/><rect x="7" y="18" width="10" height="3" rx="1" fill="#ffd24a"/>',
+  "Sword": '<path d="M5 19L19 5" stroke="#5fb0ee" stroke-width="3.2" stroke-linecap="round"/><path d="M7 12l5 5" stroke="#3a7bc8" stroke-width="2.6" stroke-linecap="round"/><path d="M4 20l2-2" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/>',
+  "Axe": '<path d="M5 20L15 9" stroke="#6b8fd6" stroke-width="2.8" stroke-linecap="round"/><path d="M12 5l8 2-2 8-4-3z" fill="#6ad0e8"/>',
+  "Mace": '<path d="M4 20L13 11" stroke="#a9794a" stroke-width="2.6" stroke-linecap="round"/><g transform="rotate(45 16.5 7.5)"><rect x="11" y="2" width="11" height="11" rx="1.5" fill="#5d5a78"/><rect x="13.2" y="4.2" width="6.6" height="6.6" fill="#8d89ad"/></g><path d="M16.5 0.8v2.4M16.5 11.8v2.4M9.8 7.5h2.4M20.8 7.5h2.4" stroke="#8d89ad" stroke-width="1.8" stroke-linecap="round"/>',
+  "Spear Mace": '<path d="M3.5 20.5L16 8" stroke="#a9794a" stroke-width="2.4" stroke-linecap="round"/><path d="M14.5 9.5l2 2" stroke="#6b4a2a" stroke-width="2.4" stroke-linecap="round"/><path d="M15 8L17.5 3.5 22 2l-1.5 4.5L16 9z" fill="#d4dde8" stroke="#8fa0b5" stroke-width="1" stroke-linejoin="round"/>',
+  "Pot": '<path d="M9 3h6v2l-1 1v4l5 8a2 2 0 0 1-2 3H7a2 2 0 0 1-2-3l5-8V6L9 5z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M7.5 16h9l2 3a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1z" fill="#e04a5f"/>',
+  "UHC": '<path d="M12 21s-8-5.5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 10c0 5.5-8 11-8 11z" fill="#e04a4a"/><path d="M8 9l2 2M16 9l-2 2" stroke="#7a1a1a" stroke-width="1.4" stroke-linecap="round"/>',
+  "Vanilla": '<path d="M12 2l9 5v10l-9 5-9-5V7z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="4.2" fill="#c27af0"/>',
+  "NethPot": '<path d="M5 13a7 7 0 0 1 14 0v7h-4v-3.5H9V20H5z" fill="#9a6fc4"/><rect x="8.5" y="11" width="2.6" height="2.6" fill="#241438"/><rect x="12.9" y="11" width="2.6" height="2.6" fill="#241438"/>',
+  "SMP": '<circle cx="12" cy="12" r="9" fill="#1b9a86"/><circle cx="12" cy="12" r="4.6" fill="#03201b"/><circle cx="9.2" cy="8.6" r="1.6" fill="#7ff0dc" opacity=".8"/>',
+  "Cart PvP": '<rect x="6" y="2.5" width="12" height="9.5" rx="1" fill="#d6392e"/><rect x="6" y="5.8" width="12" height="3.4" fill="#f1f1f1"/><path d="M8.4 8.4h1.6M9.2 6.6v1.8M11 6.6h1.4M11 8.4h1.4M11.7 6.6v1.8M13.4 6.6h1.4M14.1 6.6v1.8" stroke="#2b2b2b" stroke-width=".7"/><path d="M3 12h18l-2 6.5H5z" fill="#7d8594" stroke="#555c69" stroke-width="1" stroke-linejoin="round"/><circle cx="8" cy="20.5" r="1.9" fill="#4a505c"/><circle cx="16" cy="20.5" r="1.9" fill="#4a505c"/>',
+  "DiaSmp": '<path d="M12 6V3M12 4.5l3-2M12 4.5L9 2.6" stroke="#6a3f86" stroke-width="1.8" stroke-linecap="round"/><path d="M12 6c4.2 0 7 3.1 7 7s-2.8 8-7 8-7-4.1-7-8 2.8-7 7-7z" fill="#a874c4" stroke="#6a3f86" stroke-width="1.2"/><path d="M12 6v15M5.6 12.5h12.8" stroke="#6a3f86" stroke-width="1" opacity=".6"/><ellipse cx="9" cy="11" rx="1.7" ry="2.6" fill="#e7cdf3" opacity=".75"/>'
+};
+function icon(mode, size){
+  size = size || 28;
+  return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true">' + (ICONS[mode] || "") + '</svg>';
+}
+
+var state = {mode:"Overall", region:"All", q:"", data:{players:{}}};
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function tierClass(t){ return "t" + (String(t).slice(2) || "5"); }
+function head(name){ return "https://mc-heads.net/avatar/" + encodeURIComponent(name) + "/88"; }
+
+function total(p){
+  var sum = 0;
+  Object.keys(p.modes || {}).forEach(function(m){ sum += POINTS[p.modes[m].tier] || 0; });
+  return sum;
+}
+
+function rows(){
+  var out = [];
+  var players = state.data.players || {};
+  Object.keys(players).forEach(function(name){
+    var p = players[name];
+    if (state.region !== "All" && p.region !== state.region) return;
+    if (state.q && name.toLowerCase().indexOf(state.q) === -1) return;
+    if (state.mode === "Overall") {
+      if (!Object.keys(p.modes || {}).length) return;
+      out.push({name:name, p:p, pts:total(p)});
+    } else {
+      var m = (p.modes || {})[state.mode];
+      if (!m) return;
+      out.push({name:name, p:p, pts:POINTS[m.tier] || 0, tier:m.tier});
+    }
+  });
+  out.sort(function(a,b){ return b.pts - a.pts || a.name.localeCompare(b.name); });
+  return out;
+}
+
+function render(){
+  var tabs = ["Overall"].concat(MODES);
+  document.getElementById("tabs").innerHTML = tabs.map(function(t){
+    return '<button class="tab' + (t === state.mode ? " on" : "") + '" data-m="' + esc(t) + '">' + icon(t, 30) + '<span>' + esc(t) + '</span></button>';
+  }).join("");
+
+  var r = rows();
+  var list = document.getElementById("list");
+  if (!r.length) { list.innerHTML = '<div class="empty">No players here yet.</div>'; return; }
+  list.innerHTML = r.map(function(x, i){
+    var badges;
+    if (state.mode === "Overall") {
+      badges = Object.keys(x.p.modes).slice(0, 4).map(function(m){
+        var t = x.p.modes[m].tier;
+        return '<span class="badge ' + tierClass(t) + '">' + icon(m, 14) + esc(t) + '</span>';
+      }).join("");
+    } else {
+      badges = '<span class="badge ' + tierClass(x.tier) + '">' + esc(x.tier) + '</span>';
+    }
+    return '<div class="row" data-n="' + esc(x.name) + '">' +
+      '<div class="pos">' + (i + 1) + '</div>' +
+      '<img class="head" loading="lazy" alt="" src="' + head(x.name) + '">' +
+      '<div class="who"><div class="name">' + esc(x.name) + '</div><div class="sub">' + esc(x.p.region || "") + '</div></div>' +
+      '<div class="badges">' + badges + '</div>' +
+      '<div class="pts">' + x.pts + '</div></div>';
+  }).join("");
+}
+
+function openProfile(name){
+  var p = (state.data.players || {})[name];
+  if (!p) return;
+  var modes = Object.keys(p.modes || {}).map(function(m){
+    var v = p.modes[m];
+    return '<div class="mrow"><span>' + icon(m, 20) + esc(m) + ' <b class="badge ' + tierClass(v.tier) + '">' + esc(v.tier) + '</b></span></div>';
+  }).join("");
+  var d = document.getElementById("modal");
+  d.innerHTML = '<div class="mhead"><img alt="" src="' + head(name) + '"><div><h2>' + esc(name) + '</h2>' +
+    '<div class="sub">' + esc(p.region || "") + ' · ' + total(p) + ' points</div></div></div>' +
+    '<div class="mbody">' + (modes || '<div class="empty">No tests yet.</div>') + '</div>' +
+    '<button class="close" id="closeBtn">Close</button>';
+  d.showModal();
+  document.getElementById("closeBtn").onclick = function(){ d.close(); };
+}
+
+document.getElementById("tabs").addEventListener("click", function(e){
+  var b = e.target.closest(".tab");
+  if (!b) return;
+  state.mode = b.getAttribute("data-m");
+  render();
+});
+document.getElementById("list").addEventListener("click", function(e){
+  var r = e.target.closest(".row");
+  if (r) openProfile(r.getAttribute("data-n"));
+});
+document.getElementById("search").addEventListener("input", function(e){
+  state.q = e.target.value.trim().toLowerCase();
+  render();
+});
+document.getElementById("region").addEventListener("change", function(e){
+  state.region = e.target.value;
+  render();
+});
+document.getElementById("modal").addEventListener("click", function(e){
+  if (e.target === this) this.close();
+});
+
+function load(){
+  fetch(DATA_URL + "?t=" + Date.now())
+    .then(function(r){ if (!r.ok) throw new Error("bad"); return r.json(); })
+    .then(function(j){ state.data = j; render(); })
+    .catch(function(){
+      state.data = {players:{}};
+      render();
+    });
+}
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
