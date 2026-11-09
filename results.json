@@ -35,6 +35,15 @@
      "date": "2026-11-08"
     }
    }
+  },
+  "_ArcFlow": {
+   "region": "Asia",
+   "modes": {
+    "Spear Mace": {
+     "tier": "HT4",
+     "date": "2026-11-09"
+    }
+   }
   }
  }
 }
