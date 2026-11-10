@@ -75,6 +75,15 @@
      "date": "2026-11-10"
     }
    }
+  },
+  "Flame_Furyy": {
+   "region": "Asia",
+   "modes": {
+    "Sword": {
+     "tier": "HT4",
+     "date": "2026-11-10"
+    }
+   }
   }
  }
 }
